@@ -1,0 +1,71 @@
+!pip install openai
+
+import os
+from openai import OpenAI
+
+import openai
+
+api_key = "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"
+
+os.environ["OPENAI_API_KEY"] = api_key
+
+openai.api_key = api_key
+
+from openai import OpenAI
+
+global_memory = []
+
+def nice_guy_AI():
+    client = OpenAI()
+    global global_memory
+    
+    system_message = {
+        "role": "system",
+        "content": ("You are a compassionate and understanding therapist. Your goal is to provide comfort and reassurance to the user. Encourage them to open up about their feelings and remind them of the importance of talking to someone they trust. Offer support and let them know it's okay to seek help and share their thoughts with others.")
+    }
+    conversation_history = [system_message] + global_memory
+    
+    print("Positivai: Hello! How are you feeling today? Please share your thoughts with me. (Type 'exit' to end the conversation)")
+    
+    while True:
+        user_input = input("You: ").lower()
+        
+        if user_input == 'exit':
+            print("Positivai: Thank you for sharing with me. Take care and remember, it's always okay to seek support when you need it. Goodbye!")
+            break
+        
+        # Determine the emotion and appropriate response
+        if "happy" in user_input or "joy" in user_input or "excited" in user_input:
+            feeling_prompt = "The user is feeling positive. Respond with encouragement and support, acknowledging their good mood."
+        elif "sad" in user_input or "depressed" in user_input or "upset" in user_input:
+            feeling_prompt = "The user is feeling down. Respond with comforting words, encouraging them to talk about what's bothering them."
+        elif "angry" in user_input or "frustrated" in user_input or "annoyed" in user_input:
+            feeling_prompt = "The user is feeling angry or frustrated. Acknowledge their feelings and offer ways to manage their emotions."
+        elif "afraid" in user_input or "anxious" in user_input or "worried" in user_input:
+            feeling_prompt = "The user is feeling fearful or anxious. Offer reassurance and suggest calming techniques."
+        elif "stressed" in user_input or "overwhelmed" in user_input:
+            feeling_prompt = "The user is feeling stressed. Offer calming advice and encourage them to take breaks or practice self-care."
+        elif "confused" in user_input or "unsure" in user_input:
+            feeling_prompt = "The user is feeling confused. Offer clarity and encourage them to explore their thoughts further."
+        elif "lonely" in user_input or "isolated" in user_input:
+            feeling_prompt = "The user is feeling lonely. Empathize with their feelings and suggest ways to connect with others."
+        else:
+            feeling_prompt = "Respond with empathy and understanding, encouraging them to share more about their feelings."
+        
+        conversation_history.append({"role": "user", "content": user_input})
+        conversation_history.append({"role": "system", "content": feeling_prompt})
+        
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=conversation_history,
+            max_tokens=150
+        )
+        
+        message = response.choices[0].message.content
+        print("Positivai:", message)
+        
+        conversation_history.append({"role": "assistant", "content": message})
+        global_memory = conversation_history[-4:]
+
+# Call the function to start the conversation
+nice_guy_AI()
